@@ -68,7 +68,7 @@ class LoadCustomTemplate {
 
     // Add your templates to this array.
     $this->templates = array(
-        'includes/template-x2-downloads.php' => 'X2 Template Download',
+        'includes/manager-files.php' => 'Manage Files',
     );
 
     }

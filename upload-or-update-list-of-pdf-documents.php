@@ -13,49 +13,27 @@ ob_start();
 
 // Constantes
 define('_PLUGIN_ID_', 'uulpd_');
+define('_PLUGIN_PATH_', plugin_dir_path( __FILE__ ));
 
-add_action( 'admin_menu', 'uulpd_menu_admin' );
-add_action( 'admin_enqueue_scripts', 'add_theme_scripts_x2' );
+add_action( 'admin_enqueue_scripts', 'uulpd_add_scripts' );
 
 //load css to frontend
-add_action( 'wp_enqueue_scripts', 'load_specific_css_x2');
+add_action( 'wp_enqueue_scripts', 'uulpd_add_css');
 
 // Register activation/deactivation hooks
-register_activation_hook( __FILE__, 'x2_download_activate' );
-register_deactivation_hook( __FILE__, 'x2_download_deactivate' );
+register_activation_hook( __FILE__, 'uulpd_activate_plugin' );
+register_deactivation_hook( __FILE__, 'uulpd_deactivate_plugin' );
 register_theme_directory( plugin_dir_path( __FILE__ ).'/includes' );
 
-function add_theme_scripts_x2($hook) {
-	wp_enqueue_style( 'custom-style',  plugins_url('/includes/style-admin.css', __FILE__) );
-	wp_enqueue_style( 'datatables-style', 'https://cdn.datatables.net/v/dt/jqc-1.12.3/jqc-1.12.3/dt-1.10.16/datatables.min.css' );
+function uulpd_add_scripts($hook) {
 
-	// Register the script like this for a plugin:
-	wp_register_script( 'datatables-x2', 'https://cdn.datatables.net/v/dt/jqc-1.12.3/jqc-1.12.3/dt-1.10.16/datatables.min.js', array( 'jquery' ) );
-	
-  if( in_array( $hook, array("meus-downloads_page_view-all", "meus-downloads_page_my-reports" ) ) ) {
-    wp_enqueue_script( 'datatables-x2' );
-  }
 }
 
+function uulpd_add_css() {
 
-function load_specific_css_x2() {
-  wp_enqueue_style( 'custom-style',  plugins_url('/includes/x2-download.css', __FILE__) );
+  wp_enqueue_style( "bootstrap", "https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css", "", "media" );
+  
 }
-
-	/**
-	 * Add a menu at admin sidebar
-	 *
-	 * @since  0.1
-	 */
-  function uulpd_menu_admin() {
-    
-    //Menu
-    add_menu_page( 'PDF Lists', 'PDF Lists', 'manage_options', 'uulpd-lists', '', plugins_url('/includes/icon.png', __FILE__) );
-    
-    //Submenu
-    add_submenu_page( 'uulpd-lists', 'Nova Lista', 'Nova Lista', 'manage_options', 'uulpd-new-list', 'x2_download_create' );
-    
-  }
 
 	/**
 	 * Activate plugin
@@ -106,10 +84,10 @@ function load_specific_css_x2() {
   // run it before the headers and cookies are sent
   add_action( 'send_headers', 'uulpd_custom_login' );
 
-  /* Disabilitar barra de admin */
-  if ( ! current_user_can( 'manage_options' ) ) {
+  /* Desabilitar barra de admin */
+  /*if ( ! current_user_can( 'manage_options' ) ) {
     show_admin_bar( false );
-  }
+  }*/
 
 
   /**

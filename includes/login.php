@@ -6,10 +6,10 @@
             
             <div class="row justify-content-center">
                 <div class="col-12">
-                    <h1 class="titulo-secao text-center"><?php _e("Área <span>dos Pais</span>", "maple-bear");?></h1>   
+                    <h1 class="titulo-secao text-center"><?php _e("Gerenciar Arquivos", "uuppd");?></h1>   
                 </div>                
                 <div class="col-10 col-md-4 login-box">
-                    <h2 class="titulo-secao text-center"><?php _e("Login", "maple-bear");?></h2>
+                    <h2 class="titulo-secao text-center"><?php _e("Login", "uuppd");?></h2>
                     <form action="<?php the_permalink(); ?>" method="POST" name="login">
                         <?php wp_login_form(array(
                             'echo'           => true,

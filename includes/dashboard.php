@@ -9,71 +9,108 @@
         
         <div class="row">
 
-            <aside class="menu-lateral">                                        
-                <ul>
-                    <li><a href="?p=dashboard" <?php mp_linkActive($component, 'dashboard');?>><?php _e('Painel', 'maple-bear') ?></a></li>
-                    <li><a href="?p=relatorio" <?php mp_linkActive($component, 'relatorio');?>><?php _e('Relatórios', 'maple-bear') ?></a></li>
-                    <li><a href="?p=cardapio" <?php mp_linkActive($component, 'cardapio');?>><?php _e('Cardápio', 'maple-bear') ?></a></li>
-                    <li><a href="?p=agenda" <?php mp_linkActive($component, 'agenda');?>><?php _e('Agenda de Eventos', 'maple-bear') ?></a></li>
-                    <li><a href="?p=guia" <?php mp_linkActive($component, 'guia');?>><?php _e('Guia dos Pais', 'maple-bear') ?></a></li>
-                    <li><a href="?p=contato" <?php mp_linkActive($component, 'contato');?>><?php _e('Atualize seus contatos', 'maple-bear') ?></a></li>
-                </ul>
-            </aside><!-- menu-lateral -->
-
             <section class="col content">
                 <div class="menu-superior">
-                    <div class="container-fluid">
-                        <div class="col-md-10">
-                            <ul class="list-inline">
-                                <li class="list-inline-item"><h1>Área dos Pais</h1></li>
-                                <li class="list-inline-item float-right">
-                                    <ul class="list-inline">
-                                        <li class="list-inline-item btn">
-                                            <?php _e('Olá, ', 'maple-bear') ?>
-                                            <a href="?p=contato">
+                    <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            
+                                <ul class="list-inline">
+                                    <li class="list-inline-item"><h1><?php _e('Gerenciar Arquivos', 'uulpd'); ?></h1></li>
+                                    <li class="list-inline-item float-right">
+                                        <ul class="list-inline">
+                                            <li class="list-inline-item btn">
+                                                <?php _e('Olá, ', 'uuppd') ?>       
                                                 <?php echo $current_user->display_name; ?>
-                                            </a>
-                                        </li>
-                                        <li class="list-inline-item">|</li>
-                                        <li class="list-inline-item">
-                                            <a class="btn btn-outline-light" href="<?php echo wp_logout_url(get_permalink()); ?>"><?php _e('Logout', 'maple-bear') ?></a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
+                                                
+                                            </li>
+                                            <li class="list-inline-item">
+                                                <a class="btn btn-sm btn-outline-primary" href="<?php echo wp_logout_url(get_permalink()); ?>"><?php _e('Logout', 'uuppd') ?></a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>                            
                         </div>                        
                     </div>                    
                 </div> 
 
                 <div class="block-section">
-                    <div class="row">
-                        <?php 
+                    <div class="row justify-content-center">
                             
-                            switch ($component) {
-                                case 'dashboard':
-                                    get_template_part('templates/dashboard','index');
-                                    break; 
-                                case 'relatorio':
-                                    get_template_part('templates/dashboard','relatorio');
-                                    break; 
-                                case 'cardapio':
-                                    get_template_part('templates/dashboard','cardapio');
-                                    break; 
-                                case 'agenda':
-                                    get_template_part('templates/dashboard','agenda');
-                                    break; 
-                                case 'guia':
-                                    get_template_part('templates/dashboard','guia');
-                                    break;
-                                case 'contato':
-                                    get_template_part('templates/dashboard','contato');
-                                    break; 
-                                default:
-                                    get_template_part('templates/dashboard','index');
-                                    break;
-                            }
+                            <div class="col-md-8 mb-5">
+                                <h2><?php _e('Selecionar Fundo', 'uulpd'); ?></h2>
+                                <form action="" class="form-inline">
+                                    
+                                    <select name="" id="" class="form-control">
+                                        <option value="">AZ Quest Legan</option>
+                                        <option value="">Az Quest Valore</option>
+                                        <option value="">Az Quest Impacto</option>
+                                    </select> 
+
+                                    <br />
+
+                                    <code>[shortcode header]</code> <code>[shortcode footer]</code>
+
+                                </form>
+                            </div>
+
+                            <div class="col-md-8">
+                                <h2><?php _e('Atualizar Arquivos', 'uulpd'); ?></h2>
+                                <form>
+                                    <table class="table table-striped table-responsive">
+                                        <thead>
+                                            <tr>
+                                                <th>Esconder</th>
+                                                <th>Tipo de documento</th>       
+                                                <th>Substituir</th>
+                                                <th>Arquivo Atual</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><input type="checkbox"></td>
+                                                <td>Formulário</td>
+                                                <td><input type="file" name="" id="" class="form-control"></td>
+                                                <td>Nome do arquivo</td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="checkbox"></td>
+                                                <td>Regulamento</td>
+                                                <td><input type="file" name="" id="" class="form-control"></td>
+                                                <td>Nome do arquivo</td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="checkbox"></td>
+                                                <td>Relatório de Performance</td>
+                                                <td><input type="file" name="" id="" class="form-control"></td>
+                                                <td>Nome do arquivo</td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="checkbox"></td>
+                                                <td>Como investir</td>
+                                                <td><input type="file" name="" id="" class="form-control"></td>
+                                                <td>Nome do arquivo</td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="checkbox"></td>
+                                                <td>Download de cotas</td>
+                                                <td><input type="file" name="" id="" class="form-control"></td>
+                                                <td>Nome do arquivo</td>
+                                            </tr>
+                                            <tr>
+                                                <td><input type="checkbox"></td>
+                                                <td>Lâmina</td>
+                                                <td><input type="file" name="" id="" class="form-control"></td>
+                                                <td>Nome do arquivo</td>
+                                            </tr>
+                                        </tbody>                                        
+                                    </table>
+                                    <input type="submit" class="btn btn-primary right" value="Atualizar">
+                                </form>                                
+                                
+                            </div>
                         
-                        ?>
                     </div><!-- row -->
                     
                 </div>                    

@@ -9,9 +9,9 @@ get_header();
 
 //Se estiver var global for classe WP_USER redireciona para painel
 if ( is_user_logged_in() ) {
-    get_template_part('templates/dashboard');
+    include_once(_PLUGIN_PATH_ . 'includes/dashboard.php');
 } else {
-    get_template_part('templates/login');
+    include_once(_PLUGIN_PATH_ . 'includes/login.php');
 }
 
 //Carrega footer do template
