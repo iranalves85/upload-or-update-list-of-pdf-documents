@@ -14,25 +14,38 @@ ob_start();
 // Constantes
 define('_PLUGIN_ID_', 'uulpd_');
 define('_PLUGIN_PATH_', plugin_dir_path( __FILE__ ));
+define('_PLUGIN_URL_', plugin_dir_url( __FILE__ ));
 
-add_action( 'admin_enqueue_scripts', 'uulpd_add_scripts' );
-
+add_action('init', 'uulpd_setup_initial');
 //load css to frontend
 add_action( 'wp_enqueue_scripts', 'uulpd_add_css');
+//load scripts js to frontend
+add_action( 'wp_enqueue_scripts', 'uulpd_add_scripts');
+//Load custom template
+add_action( 'plugins_loaded', array( 'LoadCustomTemplate', 'get_instance' ) );
+
+/* Requisições Ajax */
+add_action( 'wp_ajax_uulpd_query_pages', 'uulpd_query_pages' );
 
 // Register activation/deactivation hooks
 register_activation_hook( __FILE__, 'uulpd_activate_plugin' );
 register_deactivation_hook( __FILE__, 'uulpd_deactivate_plugin' );
 register_theme_directory( plugin_dir_path( __FILE__ ).'/includes' );
 
-function uulpd_add_scripts($hook) {
+function uulpd_setup_initial(){
+  /*Desabilitar barra de admin */
+  if ( ! current_user_can( 'manage_options' ) ) {
+    show_admin_bar( false );
+  }
+}
 
+function uulpd_add_scripts($hook) {
+    wp_enqueue_script( "angularjs", _PLUGIN_URL_ . "assets/angular.min.js", "", "1.6.9", true );
+    wp_enqueue_script( "main", _PLUGIN_URL_ . "assets/main.js", "", "0.1", true );
 }
 
 function uulpd_add_css() {
-
-  wp_enqueue_style( "bootstrap", "https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css", "", "media" );
-  
+  wp_enqueue_style( "bootstrap", "https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css", "", "media" );  
 }
 
 	/**
@@ -41,7 +54,6 @@ function uulpd_add_css() {
 	 * @since  0.1
 	 */
 	function uulpd_activate_plugin() {
-		
     
 	}
 
@@ -51,7 +63,6 @@ function uulpd_add_css() {
 	 * @since  0.1
 	 */
 	function uulpd_deactivate_plugin() {
-		
 
   }
   
@@ -83,11 +94,6 @@ function uulpd_add_css() {
   }
   // run it before the headers and cookies are sent
   add_action( 'send_headers', 'uulpd_custom_login' );
-
-  /* Desabilitar barra de admin */
-  /*if ( ! current_user_can( 'manage_options' ) ) {
-    show_admin_bar( false );
-  }*/
 
 
   /**
@@ -126,15 +132,23 @@ function uulpd_add_css() {
     return;
   }
 
-define( 'MY_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-require_once( MY_PLUGIN_PATH . 'x2-download-create.php' );
 
-require_once( MY_PLUGIN_PATH . 'x2-download-list.php' );
-require_once( MY_PLUGIN_PATH . 'x2-download-update.php' );
+function uulpd_query_pages() {
+	  global $wpdb; // this is how you get access to the database
 
-require_once( MY_PLUGIN_PATH . 'x2-download-report.php' );
-require_once( MY_PLUGIN_PATH . 'x2-download-report-user.php' );
+    $get_pages = $wpdb->query_posts( array('post_type' => 'page', 'meta_key' => 'uulpd_pages', 'meta_value' => 'true') );
 
-require_once( MY_PLUGIN_PATH . 'loadCustomTemplate.php' );
+	  var_dump($get_pages);
 
-add_action( 'plugins_loaded', array( 'LoadCustomTemplate', 'get_instance' ) );
+    wp_die(); // this is required to terminate immediately and return a proper response
+}
+
+
+
+
+require_once( _PLUGIN_PATH_ . 'x2-download-create.php' );
+require_once( _PLUGIN_PATH_ . 'x2-download-list.php' );
+require_once( _PLUGIN_PATH_ . 'x2-download-update.php' );
+require_once( _PLUGIN_PATH_ . 'x2-download-report.php' );
+require_once( _PLUGIN_PATH_ . 'x2-download-report-user.php' );
+require_once( _PLUGIN_PATH_ . 'loadCustomTemplate.php' );

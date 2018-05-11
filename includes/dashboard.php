@@ -1,11 +1,11 @@
-<main class="dashboard">
+<main class="dashboard" ng-app="updateDoc">
 
     <?php 
         $current_user = wp_get_current_user(); //Retorna objeto WP_Users
         $component = isset($_GET['p']) ? $_GET['p'] : 'dashboard'; //Pega variavel get
     ?>
 
-    <div class="container-fluid">            
+    <div class="container-fluid" ng-controller="updateDocController">            
         
         <div class="row">
 
