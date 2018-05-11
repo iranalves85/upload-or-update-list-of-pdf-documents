@@ -4,14 +4,14 @@ $app.controller("updateDocController", ['$scope', '$http', function updateDocCon
     //Qtds
     $scope.fundos = []; //Query de páginas que possuem CP 'uulpd_page=true'    
 
-    $http.post('/', {
+    /*$http.post('ajax-admin.php', {
         'action': 'uulpd_query_pages'
     }, ).then(
         function() {
-            echo "show";
+            console.log("show");
         },
         function() {
-            echo "error";
-        });
+            console.log("error");
+        });*/
 
 }]);

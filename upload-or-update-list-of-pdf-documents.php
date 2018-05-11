@@ -40,8 +40,19 @@ function uulpd_setup_initial(){
 }
 
 function uulpd_add_scripts($hook) {
-    wp_enqueue_script( "angularjs", _PLUGIN_URL_ . "assets/angular.min.js", "", "1.6.9", true );
-    wp_enqueue_script( "main", _PLUGIN_URL_ . "assets/main.js", "", "0.1", true );
+    //wp_enqueue_script( "angularjs", _PLUGIN_URL_ . "assets/angular.min.js", "", "1.6.9", true );
+
+    // Localize the script with new data
+    /*$translation_array = array(
+        'some_string' => __( 'Some string to translate', 'plugin-domain' ),
+        'a_value' => '10'
+    );
+    wp_localize_script( 'some_handle', 'object_name', $translation_array );
+
+    // Enqueued script with localized data.
+    wp_enqueue_script( 'some_handle' );
+
+    wp_register_script( "main", _PLUGIN_URL_ . "assets/main.js", "", "0.1", true );**/
 }
 
 function uulpd_add_css() {
@@ -134,13 +145,14 @@ function uulpd_add_css() {
 
 
 function uulpd_query_pages() {
-	  global $wpdb; // this is how you get access to the database
+    
+    $get_pages = new WP_Query(array('posts_per_page' => -1, 'post_type' => 'page', 'meta_key' => 'uulpd_pages', 'meta_value' => 'true'));
 
-    $get_pages = $wpdb->query_posts( array('post_type' => 'page', 'meta_key' => 'uulpd_pages', 'meta_value' => 'true') );
+    wp_reset_query();
 
-	  var_dump($get_pages);
+    return $get_pages->posts;
 
-    wp_die(); // this is required to terminate immediately and return a proper response
+
 }
 
 

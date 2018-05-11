@@ -2,7 +2,11 @@
 
     <?php 
         $current_user = wp_get_current_user(); //Retorna objeto WP_Users
-        $component = isset($_GET['p']) ? $_GET['p'] : 'dashboard'; //Pega variavel get
+        $component = isset($_POST['uulpd_page']) ? $_POST['uulpd_page'] : null; //Pega variavel get
+
+        if(!is_null($component)): 
+            $shortcode = $component;
+        endif;
     ?>
 
     <div class="container-fluid" ng-controller="updateDocController">            
@@ -16,13 +20,14 @@
                         <div class="col-md-8">
                             
                                 <ul class="list-inline">
-                                    <li class="list-inline-item"><h1><?php _e('Gerenciar Arquivos', 'uulpd'); ?></h1></li>
+                                    <li class="list-inline-item">
+                                        <h1><?php _e('Gerenciar Arquivos', 'uulpd'); ?></h1>
+                                    </li>
                                     <li class="list-inline-item float-right">
                                         <ul class="list-inline">
                                             <li class="list-inline-item btn">
-                                                <?php _e('Olá, ', 'uuppd') ?>       
+                                                <?php _e('Olá, ', 'uulpd') ?>       
                                                 <?php echo $current_user->display_name; ?>
-                                                
                                             </li>
                                             <li class="list-inline-item">
                                                 <a class="btn btn-sm btn-outline-primary" href="<?php echo wp_logout_url(get_permalink()); ?>"><?php _e('Logout', 'uuppd') ?></a>
@@ -40,19 +45,30 @@
                             
                             <div class="col-md-8 mb-5">
                                 <h2><?php _e('Selecionar Fundo', 'uulpd'); ?></h2>
-                                <form action="" class="form-inline">
+
+                                <form action="" class="form-inline" method="post">
+
+                                 <?php $pages = uulpd_query_pages(); ?>
                                     
-                                    <select name="" id="" class="form-control">
-                                        <option value="">AZ Quest Legan</option>
-                                        <option value="">Az Quest Valore</option>
-                                        <option value="">Az Quest Impacto</option>
-                                    </select> 
+                                    <?php if( count($pages) > 0 ): ?>
 
-                                    <br />
+                                        <select name="uulpd_page" class="form-control">
+                                            
+                                            <?php foreach ($pages as $key => $value): ?>
+                                                
+                                                <option value="<?php echo $value->ID; ?>">
+                                                    <?php echo $value->post_title; ?>
+                                                </option>
 
-                                    <code>[shortcode header]</code> <code>[shortcode footer]</code>
+                                            <?php endforeach; ?>
 
-                                </form>
+                                        </select> 
+
+                                    <?php endif; ?>
+                                    
+                                    <input type="submit" value="<?php _e('Selecionar', 'uulpd') ?>" class="ml-2 mr-4" />
+
+                                </form>                                
                             </div>
 
                             <div class="col-md-8">
@@ -109,6 +125,17 @@
                                     <input type="submit" class="btn btn-primary right" value="Atualizar">
                                 </form>                                
                                 
+                            </div>
+
+                            <div class="col-md-8">
+                                <p>
+                                    <?php _e('Em todas as páginas dos Fundos, devem ser incluídos as shortcodes abaixo:', 'uulpd'); ?>
+                                </p>
+                                
+                                <ul>
+                                    <li><code>[shortcode location="header"]</code></li>
+                                    <li><code>[shortcode location="footer"]</code></li>
+                                </ul>
                             </div>
                         
                     </div><!-- row -->
