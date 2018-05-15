@@ -143,7 +143,7 @@ function uulpd_add_css() {
     return;
   }
 
-
+/* Retorna as páginas identificadas com o meta_key 'uulpd-pages' */
 function uulpd_query_pages() {
     
     $get_pages = new WP_Query(array('posts_per_page' => -1, 'post_type' => 'page', 'meta_key' => 'uulpd_pages', 'meta_value' => 'true'));
@@ -151,16 +151,55 @@ function uulpd_query_pages() {
     wp_reset_query();
 
     return $get_pages->posts;
-
-
 }
 
+/* Retorna os meta values de acordo com o ID selecionado */
+function uulpd_current_files($id){
 
+    $data = get_post_meta($id, 'uulpd_files');
+    return $data;
+}
 
+/* Verifica se variavel contém conteúdo ou nulo */
+function uulpd_print_filename($array, $key){
+    if(count($array) <= 0){
+        echo "Não cadastrado";
+        return;
+    }
+}
 
-require_once( _PLUGIN_PATH_ . 'x2-download-create.php' );
-require_once( _PLUGIN_PATH_ . 'x2-download-list.php' );
-require_once( _PLUGIN_PATH_ . 'x2-download-update.php' );
-require_once( _PLUGIN_PATH_ . 'x2-download-report.php' );
-require_once( _PLUGIN_PATH_ . 'x2-download-report-user.php' );
+/*  */
+function uulpd_update_data_database(){
+    
+    if(! $_POST){
+        return false;
+    }
+
+    if ( isset($_FILES["uulpd_files"]) ) {
+
+        if( isset($_POST['form_id']) ){
+            $page_id = $_POST['form_id'];
+        }
+        else{
+            return false;
+        }
+
+        $path_array = wp_upload_dir();
+        $path = $path_array['basedir'] . '/arquivos-fundos/' . $id;
+        $pathInsert = $path_array['baseurl'] . '/arquivos-fundos/' . $id;
+        if ( ! file_exists( $path ) ) {
+            wp_mkdir_p( $path );
+        }
+
+        $target_path_sia = uniqid() . wpartisan_sanitize_file_name( $_FILES["file_ebook"]["name"] );
+
+        if ( move_uploaded_file( $_FILES["file_ebook"]["tmp_name"], $path . "/" . $target_path_sia ) ) {
+            chmod( $path . "/" . $target_path_sia, 0666 );
+
+            $caminhoBanco = $pathInsert . "/" . $target_path_sia;
+            $caminho = substr( $caminhoBanco, 0 );
+        }
+    } 
+}
+
 require_once( _PLUGIN_PATH_ . 'loadCustomTemplate.php' );
