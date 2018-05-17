@@ -15,6 +15,7 @@ ob_start();
 define('_PLUGIN_ID_', 'uulpd_');
 define('_PLUGIN_PATH_', plugin_dir_path( __FILE__ ));
 define('_PLUGIN_URL_', plugin_dir_url( __FILE__ ));
+define('_VALID_FIELDS_', array('formulario','regulamento','relatorio_performance','lamina','download_cotas', 'como_investir'));
 
 add_action('init', 'uulpd_setup_initial');
 //load css to frontend
@@ -156,50 +157,190 @@ function uulpd_query_pages() {
 /* Retorna os meta values de acordo com o ID selecionado */
 function uulpd_current_files($id){
 
-    $data = get_post_meta($id, 'uulpd_files');
+    //Meta Keys Válidas
+    $meta_keys = _VALID_FIELDS_;
+
+    //Percorre array e pega meta_data do BD
+    foreach ($meta_keys as $key) {
+        $data[$key] = get_post_meta($id, $key, true);
+    }
+
     return $data;
 }
 
 /* Verifica se variavel contém conteúdo ou nulo */
 function uulpd_print_filename($array, $key){
-    if(count($array) <= 0){
-        echo "Não cadastrado";
+
+    $meta_value = $array[$key];
+    
+    if (empty($meta_value)) {
+        _e('Não cadastrado', 'uulpd');
         return;
     }
+
+    if (array_key_exists('file', $meta_value)) {
+        echo "<a class='btn btn-md btn-info' target='_blank' href='" .  $meta_value['file'] . "'>" . _x('Arquivo Cadastrado', 'uulpd') . "</a>";
+        return;
+    }
+
+    if (array_key_exists('url', $meta_value)) {
+        echo $meta_value['url'];
+        return;        
+    }    
+
 }
 
-/*  */
+/* Check se checkbox ativo ou não */
+function uulpd_hide_show($array, $key) {
+
+    $meta_value = $array[$key];
+    
+    if (empty($meta_value)) {
+        return;
+    }
+
+    if (array_key_exists('hide', $meta_value) && $meta_value['hide'] == 'on') {
+        echo " checked='checked'";
+        return;
+    }  
+
+}
+
+/* Adiciona ou Atualiza os dados no BD */
 function uulpd_update_data_database(){
     
-    if(! $_POST){
+    //Verifica se houve envio de http
+    if (!isset($_POST['uulpd_files'])) {
         return false;
     }
 
-    if ( isset($_FILES["uulpd_files"]) ) {
+    //Validar o formulário de envio
+    if ( !wp_verify_nonce($_POST['uulpd_add_edit_files'], 'uulpd' ) ) {
+        return false;
+    }
 
-        if( isset($_POST['form_id']) ){
-            $page_id = $_POST['form_id'];
+    //Se não existir ID, retorna erro
+    if ( isset($_POST['uulpd_page_id']) ) {
+        $page_id = $_POST['uulpd_page_id'];
+    }
+    else {
+        return false;
+    }
+
+    $fields = array(); //Arquivo para armazenar dados dos campos
+    $msg = '';
+
+    //Se foi submetido arquivos via POST
+    if ( isset($_FILES['uulpd_files']) ) {
+        
+        //Percorre array de arquivos enviados e adiciona os arquivos a página
+        foreach ( $_FILES['uulpd_files']['name'] as $key => $value ) {
+            
+            //Adiciona array a variável
+            $file = $_FILES["uulpd_files"]["name"][$key]['file'];
+            
+            //Adicionar arquivo de array, verifica valor e vai proxima $key
+            if ( empty($file) ) {
+                continue;
+            }
+
+            //Configurando caminhos para upload
+            $fileTemp = $_FILES["uulpd_files"]["tmp_name"][$key]['file'];
+            $path_array = wp_upload_dir();
+            $path = $path_array['basedir'] . '/arquivos-fundos';
+            $pathInsert = $path_array['baseurl'] . '/arquivos-fundos';
+            
+            //Se arquivo não existir cria diretório
+            if ( ! file_exists( $path ) ) {
+                wp_mkdir_p( $path );
+            }            
+
+            //Sanitize o nome do arquivo
+            $target_path_sia = uulpd_sanitize_file_name( $file );
+
+            if ( move_uploaded_file( $fileTemp, $path . "/" . $target_path_sia ) ) {
+                chmod( $path . "/" . $target_path_sia, 0666 );
+
+                $caminhoBanco = $pathInsert . "/" . $target_path_sia;
+                $caminho = substr( $caminhoBanco, 0 );
+            }
+
+            //Valores a serem inseridos no banco
+            $fields[$key] = array('file' => $caminho);
+
         }
-        else{
-            return false;
+    }    
+
+    //Percorre array e os links a página
+    foreach ( _VALID_FIELDS_ as $key ) {
+
+        $context = $_POST['uulpd_files'][$key];
+        
+        //Valores a serem inseridos no banco
+        $meta_value = array(
+            'hide'  => (isset($context['hide']))? $context['hide'] : 'off'
+        );
+
+        //Adiciona array a variável
+        if (!is_null($context) && array_key_exists('url', $context) ) {            
+            //Valores a serem inseridos no banco
+            $meta_value['url'] = filter_var($context['url'], FILTER_SANITIZE_URL);
+        }        
+
+        //Combina os array de arquivos e dados de post comum
+        if (is_array($fields[$key])) {
+            $arrayMixin = array_merge($fields[$key], $meta_value);
+        }
+        else {
+            $arrayMixin = $meta_value;
         }
 
-        $path_array = wp_upload_dir();
-        $path = $path_array['basedir'] . '/arquivos-fundos/' . $id;
-        $pathInsert = $path_array['baseurl'] . '/arquivos-fundos/' . $id;
-        if ( ! file_exists( $path ) ) {
-            wp_mkdir_p( $path );
-        }
+        //Pega dados da database e verifica se existe
+        $getData = get_post_meta($page_id, $key, true);
 
-        $target_path_sia = uniqid() . wpartisan_sanitize_file_name( $_FILES["file_ebook"]["name"] );
-
-        if ( move_uploaded_file( $_FILES["file_ebook"]["tmp_name"], $path . "/" . $target_path_sia ) ) {
-            chmod( $path . "/" . $target_path_sia, 0666 );
-
-            $caminhoBanco = $pathInsert . "/" . $target_path_sia;
-            $caminho = substr( $caminhoBanco, 0 );
-        }
-    } 
+        //Atualiza dados
+        uulpd_insert_data($getData, $page_id, $key, $arrayMixin);
+    }
+    
 }
+
+/* Função para atualizar os dados existentes no banco */
+function uulpd_insert_data($getData, $id, $meta_key, $newValue) {
+
+    if (!$getData) {
+        //Adiciona novos dados
+        if (add_post_meta($id, $meta_key, $newValue, true)) {
+            $msg = "<div class='container'><div class='row justify-content-center'><div class='col-9 alert alert-success'>" . $meta_key . ": Cadastrado com sucesso.</div></div></div>";
+        }
+        else {
+            $msg = "<div class='container'><div class='row justify-content-center'><div class='col-9 alert alert-warning'>" . $meta_key . ": Houve um erro ao cadastrar os novos dados. Tente novamente mais tarde.</div></div></div>";
+        }        
+    }
+    else {
+        //Combina os arrays atualizando os dados de array
+        $data = array_merge($getData, $newValue);
+
+        //Atualiza dados no BD
+        if (update_post_meta($id, $meta_key, $data)) {
+            $msg = "<div class='container'><div class='row justify-content-center'><div class='col-9 alert alert-success'>" . $meta_key . ": Atualizado com sucesso.</div></div></div>";
+        }     
+    } 
+    
+    //Imprime se houve error no cadastro dos dados
+    echo $msg;
+
+}
+
+
+/* Register shortcode to show list of Files in page */ 
+function uulpd_shortcode($atts){
+    
+    extract(shortcode_atts(array(
+        'location' => "header",
+     ), $atts));
+
+}   
+
+add_shortcode('uulpd_page_file', 'uulpd_shortcode');
 
 require_once( _PLUGIN_PATH_ . 'loadCustomTemplate.php' );
