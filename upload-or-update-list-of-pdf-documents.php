@@ -15,7 +15,9 @@ ob_start();
 define('_PLUGIN_ID_', 'uulpd_');
 define('_PLUGIN_PATH_', plugin_dir_path( __FILE__ ));
 define('_PLUGIN_URL_', plugin_dir_url( __FILE__ ));
-define('_VALID_FIELDS_', array('formulario','regulamento','relatorio_performance','lamina','download_cotas', 'como_investir'));
+define('_VALID_FIELDS_', serialize(array('formulario','regulamento','relatorio_performance','lamina','download_cotas', 'como_investir')));
+
+$GLOBALS['valid_fields'] = unserialize(_VALID_FIELDS_);
 
 add_action('init', 'uulpd_setup_initial');
 //load css to frontend
@@ -27,6 +29,9 @@ add_action( 'plugins_loaded', array( 'LoadCustomTemplate', 'get_instance' ) );
 
 /* Requisições Ajax */
 add_action( 'wp_ajax_uulpd_query_pages', 'uulpd_query_pages' );
+
+//Registrando shortcodes
+add_shortcode('uulpd_page_file', 'uulpd_shortcode');
 
 // Register activation/deactivation hooks
 register_activation_hook( __FILE__, 'uulpd_activate_plugin' );
@@ -158,7 +163,8 @@ function uulpd_query_pages() {
 function uulpd_current_files($id){
 
     //Meta Keys Válidas
-    $meta_keys = _VALID_FIELDS_;
+    global $valid_fields;
+    $meta_keys = $valid_fields;
 
     //Percorre array e pega meta_data do BD
     foreach ($meta_keys as $key) {
@@ -229,6 +235,7 @@ function uulpd_update_data_database(){
 
     $fields = array(); //Arquivo para armazenar dados dos campos
     $msg = '';
+    global $valid_fields;
 
     //Se foi submetido arquivos via POST
     if ( isset($_FILES['uulpd_files']) ) {
@@ -272,9 +279,10 @@ function uulpd_update_data_database(){
     }    
 
     //Percorre array e os links a página
-    foreach ( _VALID_FIELDS_ as $key ) {
+    foreach ( $valid_fields as $key ) {
 
-        $context = $_POST['uulpd_files'][$key];
+        //Verifica se houve Post do campo
+        $context = (isset($_POST['uulpd_files'][$key]))? $_POST['uulpd_files'][$key] : array();
         
         //Valores a serem inseridos no banco
         $meta_value = array(
@@ -288,7 +296,7 @@ function uulpd_update_data_database(){
         }        
 
         //Combina os array de arquivos e dados de post comum
-        if (is_array($fields[$key])) {
+        if (isset($fields[$key]) && is_array($fields[$key])) {
             $arrayMixin = array_merge($fields[$key], $meta_value);
         }
         else {
@@ -306,6 +314,8 @@ function uulpd_update_data_database(){
 
 /* Função para atualizar os dados existentes no banco */
 function uulpd_insert_data($getData, $id, $meta_key, $newValue) {
+
+    $msg = '';
 
     if (!$getData) {
         //Adiciona novos dados
@@ -335,12 +345,56 @@ function uulpd_insert_data($getData, $id, $meta_key, $newValue) {
 /* Register shortcode to show list of Files in page */ 
 function uulpd_shortcode($atts){
     
-    extract(shortcode_atts(array(
+    //Verifica os atributos válidos
+    $atribute_defaults = extract(shortcode_atts(array(
         'location' => "header",
-     ), $atts));
+     ), $atts, 'uulpd_page_file'));
+    
+    //global $valid_fields; //Pega array de campos válidos
+
+    $page_id = get_the_ID(); //Pega o ID de contexto, página atual
+
+    //Setando os links a mostrar
+    $linksShow = ($atts['location'] == 'header')? array('formulario' => 'Formulário','regulamento' => 'Regulamento','relatorio_performance' => 'Relatório de Performance', 'como_investir' => 'Como Investir') : array('download_cotas' => 'Download de Cotas', 'lamina' => 'Lâmina');
+
+    //Retorna os valores do BD
+    $meta = get_metadata('post', $page_id);
+
+    //Aponta para o final do array
+    end($linksShow);
+
+    //Pega o ultimo indice do array
+    $last = key($linksShow);
+
+    //Inicializa o html para imprimir
+    $html = '<ul class="list-inline">';
+
+    foreach ($linksShow as $key => $value) { 
+        
+        $currentMeta = unserialize($meta[$key][0]); //Define meta_values
+        
+        //Se for setado para esconder, pula a interação para próximo indice do array
+        if ($currentMeta['hide'] == 'off') { continue; }
+
+        //Define o link para tag link
+        $link = (isset($currentMeta['url']))? $currentMeta['url'] : $currentMeta['file'];       
+    
+        $html .= '<li class="list-inline-item">
+                        <a class="btn btn-primary" href="' . $link . '" target="_blank">
+                            ' . $value .'
+                        </a>
+                    </li>';
+
+        //Imprime os separadores
+        if ($key != $last){
+            $html .= '<li class="list-inline-item">|</li>';
+        }
+    }
+
+    $html .= '</ul><!-- lista-de-links -->';
+
+    return $html;
 
 }   
-
-add_shortcode('uulpd_page_file', 'uulpd_shortcode');
 
 require_once( _PLUGIN_PATH_ . 'loadCustomTemplate.php' );

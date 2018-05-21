@@ -125,7 +125,7 @@
                                             <tr>
                                                 <td align="center"><input type="checkbox" name="uulpd_files[como_investir][hide]" <?php uulpd_hide_show($currentFiles, 'como_investir'); ?>></td>
                                                 <td>Como investir</td>
-                                                <td colspan="2"><input type="url" name="uulpd_files[como_investir][url]" class="form-control" placeholder="<?php uulpd_print_filename($currentFiles, 'como_investir'); ?>"></td>
+                                                <td colspan="2"><input type="url" name="uulpd_files[como_investir][url]" class="form-control" placeholder="Insira um link" value="<?php uulpd_print_filename($currentFiles, 'como_investir'); ?>"></td>
                                             </tr>                                           
                                             <tr>
                                                 <td align="center"><input type="checkbox" name="uulpd_files[lamina][hide]" <?php uulpd_hide_show($currentFiles, 'lamina'); ?>></td>
@@ -136,7 +136,7 @@
                                             <tr>
                                                 <td align="center"><input type="checkbox" name="uulpd_files[download_cotas][hide]" <?php uulpd_hide_show($currentFiles, 'download_cotas'); ?>></td>
                                                 <td>Download de cotas</td>
-                                                <td colspan="2"><input type="url" name="uulpd_files[download_cotas][url]" class="form-control" placeholder="<?php uulpd_print_filename($currentFiles, 'download_cotas'); ?>"></td>            
+                                                <td colspan="2"><input type="url" name="uulpd_files[download_cotas][url]" class="form-control" placeholder="Insira um link" value="<?php uulpd_print_filename($currentFiles, 'download_cotas'); ?>"></td>            
                                             </tr>
                                                 
                                         </tbody>                                        
